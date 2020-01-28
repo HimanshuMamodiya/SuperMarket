@@ -30,10 +30,6 @@ namespace Supermarket.API
 
             services.AddCustomSwagger();
 
-            services.AddMvc().AddNewtonsoftJson();
- 
-            services.AddScoped<ServiceBusSender>();
-
             services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
                 // Adds a custom error response factory when ModelState is invalid

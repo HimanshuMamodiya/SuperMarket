@@ -7,10 +7,8 @@ using Supermarket.API.Domain.Models.Queries;
 using Supermarket.API.Domain.Services;
 using Supermarket.API.Resources;
 
-
 namespace Supermarket.API.Controllers
 {
-
     [Route("/api/products")]
     [Produces("application/json")]
     [ApiController]
@@ -18,13 +16,11 @@ namespace Supermarket.API.Controllers
     {
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
-        private ServiceBusSender _serviceBusSender;
 
-        public ProductsController(IProductService productService, IMapper mapper, ServiceBusSender serviceBusSender)
+        public ProductsController(IProductService productService, IMapper mapper)
         {
             _productService = productService;
             _mapper = mapper;
-            _serviceBusSender = serviceBusSender;
         }
 
         /// <summary>
@@ -53,21 +49,14 @@ namespace Supermarket.API.Controllers
         public async Task<IActionResult> PostAsync([FromBody] SaveProductResource resource)
         {
             var product = _mapper.Map<SaveProductResource, Product>(resource);
-            /*var result = await _productService.SaveAsync(product);
+            var result = await _productService.SaveAsync(product);
 
             if (!result.Success)
             {
                 return BadRequest(new ErrorResource(result.Message));
-            }*/
-            // Send this to the bus for the other services
-            await _serviceBusSender.SendMessage(new MyPayload
-            {
-                 Categories=true,
-                 id=0,
-                 CategoriesOrProducts=product
-            });
+            }
 
-            var productResource = _mapper.Map<Product, ProductResource>(resource);
+            var productResource = _mapper.Map<Product, ProductResource>(result.Resource);
             return Ok(productResource);
         }
 
